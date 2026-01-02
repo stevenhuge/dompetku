@@ -10,7 +10,7 @@ class TransaksiController extends Controller
     public function index()
     {
         // 1. Mengambil data dari Database, diurutkan dari yang terbaru
-        $transaksi = Transaksi::orderBy('tanggal', 'desc')->paginate(1);
+        $transaksi = Transaksi::orderBy('tanggal', 'desc')->get();
         // 2. Menghitung total Pemasukan & Pengeluaran menggunakan Agregat Database
         // Ini lebih efisien daripada menghitung manual dengan loop
         $totalPemasukan = Transaksi::where(
@@ -32,12 +32,11 @@ class TransaksiController extends Controller
             'saldo' => $saldo
         ]);
     }
-
+    
     public function create()
     {
         return view('transaksi.create');
     }
-
     public function store(Request $request)
     {
         // 1. Validasi Input

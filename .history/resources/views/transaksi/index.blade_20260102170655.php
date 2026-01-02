@@ -94,7 +94,7 @@
                 @endforeach
             </tbody>
         </table>
-        <div>{{ $dataTransaksi->links() }}</div>
+        {{ $dataTransaksi->links() }}
     </div>
 </div>
 @endsection

@@ -91,10 +91,10 @@
                         </div>
                     </td>
                 </tr>
+                div
                 @endforeach
             </tbody>
         </table>
-        <div>{{ $dataTransaksi->links() }}</div>
     </div>
 </div>
 @endsection
