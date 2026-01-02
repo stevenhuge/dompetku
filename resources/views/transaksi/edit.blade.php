@@ -1,13 +1,12 @@
 @extends('layout.master')
 @section('title', 'Edit Transaksi')
+
 @section('content')
 <div class="max-w-2xl mx-auto">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-gray-800">Edit Transaksi</h2>
-            <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-indigo-600">Kembali</a>
-        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Edit Transaksi</h2>
 
+        {{-- Error Messages --}}
         @if ($errors->any())
         <div class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
             <ul class="list-disc pl-5">
@@ -20,24 +19,27 @@
 
         <form action="{{ route('transaksi.update', $transaksi->id) }}" method="POST">
             @csrf
-            {{-- Karena rute di web.php menggunakan POST untuk update, kita tidak wajib memakai @method('PUT') --}}
-            {{-- Namun jika rute Anda diganti menjadi Route::put, tambahkan @method('PUT') di sini --}}
+            @method('PUT') {{-- Wajib untuk Update data --}}
 
             <div class="space-y-5">
+
+                {{-- Keterangan --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan Transaksi</label>
-                    <input type="text" name="keterangan" value="{{ old('keterangan', $transaksi->keterangan) }}" 
-                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border"
-                        placeholder="Contoh: Beli Nasi Goreng">
+                    {{-- Perhatikan value: old('keterangan', $transaksi->keterangan) --}}
+                    <input type="text" name="keterangan" value="{{ old('keterangan', $transaksi->keterangan) }}"
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border">
                 </div>
 
                 <div class="grid grid-cols-2 gap-5">
+                    {{-- Nominal --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nominal (Rp)</label>
                         <input type="number" name="nominal" value="{{ old('nominal', $transaksi->nominal) }}"
-                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border" 
-                            placeholder="0">
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border">
                     </div>
+
+                    {{-- Tanggal --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
                         <input type="date" name="tanggal" value="{{ old('tanggal', $transaksi->tanggal) }}"
@@ -45,29 +47,29 @@
                     </div>
                 </div>
 
+                {{-- Kategori Dropdown --}}
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Transaksi</label>
-                    <div class="flex space-x-4">
-                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 w-full {{ $transaksi->jenis == 'pemasukan' ? 'bg-indigo-50 border-indigo-200' : '' }}">
-                            <input type="radio" name="jenis" value="pemasukan"
-                                class="text-indigo-600 focus:ring-indigo-500"
-                                {{ old('jenis', $transaksi->jenis) == 'pemasukan' ? 'checked' : '' }}>
-                            <span class="ml-2 text-sm text-gray-700">Pemasukan</span>
-                        </label>
-                        
-                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 w-full {{ $transaksi->jenis == 'pengeluaran' ? 'bg-indigo-50 border-indigo-200' : '' }}">
-                            <input type="radio" name="jenis" value="pengeluaran"
-                                class="text-indigo-600 focus:ring-indigo-500"
-                                {{ old('jenis', $transaksi->jenis) == 'pengeluaran' ? 'checked' : '' }}>
-                            <span class="ml-2 text-sm text-gray-700">Pengeluaran</span>
-                        </label>
-                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kategori</label>
+                    <select name="kategori_id" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border">
+                        <option value="">-- Pilih Kategori --</option>
+                        @foreach($kategoris as $kategori)
+                            <option value="{{ $kategori->id }}"
+                                {{-- Logika Selected: Jika old input sama ATAU data database sama dengan ID loop --}}
+                                {{ old('kategori_id', $transaksi->kategori_id) == $kategori->id ? 'selected' : '' }}>
+                                {{ $kategori->nama_kategori }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
-                <div class="pt-4">
-                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-200">
+                {{-- Tombol Aksi --}}
+                <div class="pt-4 flex gap-3">
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-200">
                         Update Transaksi
                     </button>
+                    <a href="{{ route('dashboard') }}" class="flex-none bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 transition duration-200 text-center">
+                        Batal
+                    </a>
                 </div>
             </div>
         </form>

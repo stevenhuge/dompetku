@@ -6,26 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('transaksis', function (Blueprint $table) {
             $table->id();
             $table->string('keterangan', 255);
             $table->date('tanggal');
-            $table->integer('nominal');
-            $table->enum('jenis', ['pemasukan', 'pengeluaran']);
-            $table->timestamps(); // created_at & updated_at
+            $table->bigInteger('nominal');
+
+            // Hanya ada relasi ke kategori, tanpa penanda jenis
+            $table->foreignId('kategori_id')
+                  ->constrained('kategoris')
+                  ->onDelete('cascade');
+
+            $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('transaksis');
     }
 };

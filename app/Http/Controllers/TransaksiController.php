@@ -2,98 +2,101 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Transaksi; // [PENTING] Import Model
+use App\Models\Transaksi;
+use App\Models\Kategori;
 use Illuminate\Http\Request;
 
 class TransaksiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Mengambil data dari Database, diurutkan dari yang terbaru
-        $transaksi = Transaksi::orderBy('tanggal', 'desc')->paginate(1);
-        // 2. Menghitung total Pemasukan & Pengeluaran menggunakan Agregat Database
-        // Ini lebih efisien daripada menghitung manual dengan loop
-        $totalPemasukan = Transaksi::where(
-            'jenis',
-            'pemasukan'
-        )->sum('nominal');
-        $totalPengeluaran = Transaksi::where(
-            'jenis',
-            'pengeluaran'
-        )->sum('nominal');
+        $search = $request->input('search');
 
-        // 3. Menghitung Saldo Akhir
-        $saldo = $totalPemasukan - $totalPengeluaran;
-        // 4. Mengirim data ke View
-        return view('transaksi.index', [
-            'dataTransaksi' => $transaksi,
-            'pemasukan' => $totalPemasukan,
-            'pengeluaran' => $totalPengeluaran,
-            'saldo' => $saldo
-        ]);
+        // 1. Ambil Data Transaksi + Relasi Kategori
+        $query = Transaksi::with('kategori');
+
+        if ($search) {
+            $query->where('keterangan', 'like', '%' . $search . '%');
+        }
+
+        // Simpan ke variabel $transaksis (agar sesuai dengan index.blade.php)
+        $transaksis = $query->orderBy('tanggal', 'desc')->paginate(10);
+
+        // 2. LOGIKA HITUNG SALDO (Tanpa Kolom Jenis)
+        // Karena kolom 'jenis' sudah dihapus, kita hitung manual berdasarkan Nama Kategori.
+        // Asumsi: Hanya kategori "Gaji" yang dianggap Pemasukan.
+
+        $pemasukan = Transaksi::whereHas('kategori', function ($q) {
+            $q->where('nama_kategori', 'Gaji');
+        })
+        ->when($search, function ($q) use ($search) {
+            $q->where('keterangan', 'like', '%' . $search . '%');
+        })->sum('nominal');
+
+        // Sisanya (selain Gaji) dianggap Pengeluaran
+        $pengeluaran = Transaksi::whereHas('kategori', function ($q) {
+            $q->where('nama_kategori', '!=', 'Gaji');
+        })
+        ->when($search, function ($q) use ($search) {
+            $q->where('keterangan', 'like', '%' . $search . '%');
+        })->sum('nominal');
+
+        $saldo = $pemasukan - $pengeluaran;
+
+        return view('transaksi.index', compact('transaksis', 'pemasukan', 'pengeluaran', 'saldo'));
     }
 
     public function create()
     {
-        return view('transaksi.create');
+        // Ambil semua kategori untuk dropdown di form tambah
+        $kategoris = Kategori::all();
+        return view('transaksi.create', compact('kategoris'));
     }
 
     public function store(Request $request)
     {
-        // 1. Validasi Input
         $validated = $request->validate([
-            'keterangan' => 'required|string|max:255',
-            'nominal' => 'required|numeric|min:1000',
-            'jenis' => 'required|in:pemasukan,pengeluaran',
-            'tanggal' => 'required|date'
+            'keterangan'  => 'required|string|max:255',
+            'nominal'     => 'required|numeric|min:1000',
+            // Validasi kategori_id wajib ada di tabel kategoris
+            'kategori_id' => 'required|exists:kategoris,id',
+            'tanggal'     => 'required|date'
         ]);
-        // 2. Simpan ke Database (Eloquent Mass Assignment)
-        // Data $validated sudah sesuai dengan field di database
+
         Transaksi::create($validated);
-        // 3. Redirect ke halaman utama
-        return redirect()->route('dashboard')->with('success', 'Transaksi berhasil disimpan ke Database!');
+
+        // Redirect ke index transaksi
+        return redirect()->route('dashboard')->with('success', 'Transaksi berhasil disimpan!');
     }
 
-    // Menampilkan halaman formulir edit
     public function edit($id)
     {
-        // 1. Cari data berdasarkan ID, jika tidak ada tampilkan error 404
         $transaksi = Transaksi::findOrFail($id);
+        $kategoris = Kategori::all(); // Data kategori untuk dropdown edit
 
-        // 2. Kirim data ke view edit
-        return view('transaksi.edit', compact('transaksi'));
+        return view('transaksi.edit', compact('transaksi', 'kategoris'));
     }
 
-    // Memproses perubahan data ke database
     public function update(Request $request, $id)
     {
-        // 1. Validasi Input (Sama seperti store)
         $validated = $request->validate([
-            'keterangan' => 'required|string|max:255',
-            'nominal'    => 'required|numeric|min:1000',
-            'jenis'      => 'required|in:pemasukan,pengeluaran',
-            'tanggal'    => 'required|date'
+            'keterangan'  => 'required|string|max:255',
+            'nominal'     => 'required|numeric|min:1000',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'tanggal'     => 'required|date'
         ]);
 
-        // 2. Cari data yang akan diupdate
         $transaksi = Transaksi::findOrFail($id);
-
-        // 3. Update data di database
         $transaksi->update($validated);
 
-        // 4. Redirect kembali ke dashboard dengan pesan sukses
         return redirect()->route('dashboard')->with('success', 'Data transaksi berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
-        // 1. Cari data berdasarkan ID
         $transaksi = Transaksi::findOrFail($id);
-
-        // 2. Hapus data tersebut
         $transaksi->delete();
 
-        // 3. Redirect kembali ke dashboard
         return redirect()->route('dashboard')->with('success', 'Transaksi berhasil dihapus!');
     }
 }

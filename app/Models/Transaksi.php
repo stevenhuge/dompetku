@@ -8,11 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class Transaksi extends Model
 {
     use HasFactory;
-    // Mendefinisikan kolom mana saja yang boleh diisi oleh user
+
+    protected $table = 'transaksis';
+
+    // Tambahkan 'kategori_id' di sini
     protected $fillable = [
         'keterangan',
         'tanggal',
         'nominal',
-        'jenis'
+        'kategori_id', // <--- WAJIB ADA
     ];
+
+    public function kategori()
+    {
+        return $this->belongsTo(Kategori::class);
+    }
 }
