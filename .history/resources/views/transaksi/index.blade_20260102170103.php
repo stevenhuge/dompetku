@@ -78,7 +78,7 @@
                                 <i class="fas fa-edit"></i>
                             </a>
 
-                            <form action="{{ route('transaksi.destroy', $item->id) }}" method="POST" class="inline">
+                            <form action="{{ route('transaksi.edit', $item->id) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
