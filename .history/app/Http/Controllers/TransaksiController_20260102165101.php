@@ -82,16 +82,5 @@ class TransaksiController extends Controller
         // 4. Redirect kembali ke dashboard dengan pesan sukses
         return redirect()->route('dashboard')->with('success', 'Data transaksi berhasil diperbarui!');
     }
-
-    public function destroy($id)
-    {
-        // 1. Cari data berdasarkan ID
-        $transaksi = Transaksi::findOrFail($id);
-
-        // 2. Hapus data tersebut
-        $transaksi->delete();
-
-        // 3. Redirect kembali ke dashboard
-        return redirect()->route('dashboard')->with('success', 'Transaksi berhasil dihapus!');
-    }
+    
 }

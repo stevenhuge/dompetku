@@ -3,7 +3,6 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Saldo</h3>
@@ -72,7 +71,7 @@
                     </td>
                     <td class="px-6 py-4 text-sm font-medium text-center">
                         <div class="flex justify-center gap-3">
-                            <a href="{{ route('transaksi.edit', $item->id) }}"
+                            <a href="{{ url('/transaksi/'.$item['id'].'/edit') }}"
                                 class="text-indigo-600 hover:text-indigo-900 transition"
                                 title="Edit Transaksi">
                                 <i class="fas fa-edit"></i>

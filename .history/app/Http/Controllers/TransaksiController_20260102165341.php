@@ -59,7 +59,7 @@ class TransaksiController extends Controller
         $transaksi = Transaksi::findOrFail($id);
 
         // 2. Kirim data ke view edit
-        return view('transaksi.edit', compact('transaksi'));
+        return view('transaksi.create', compact('transaksi'));
     }
 
     // Memproses perubahan data ke database

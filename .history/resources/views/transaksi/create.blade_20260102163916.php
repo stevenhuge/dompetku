@@ -15,7 +15,7 @@ rounded-lg text-sm">
             </ul>
         </div>
         @endif
-        <form action="{{ route('transaksi.store') }}" method="POST">
+        <form action="{{ route('transaksi.c') }}" method="POST">
             @csrf <div class="space-y-5">
                 <div>
                     <label class="block text-sm font-medium text-gray-700

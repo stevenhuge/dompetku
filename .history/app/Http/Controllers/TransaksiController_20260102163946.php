@@ -51,47 +51,4 @@ class TransaksiController extends Controller
         // 3. Redirect ke halaman utama
         return redirect()->route('dashboard')->with('success', 'Transaksi berhasil disimpan ke Database!');
     }
-
-    // Menampilkan halaman formulir edit
-    public function edit($id)
-    {
-        // 1. Cari data berdasarkan ID, jika tidak ada tampilkan error 404
-        $transaksi = Transaksi::findOrFail($id);
-
-        // 2. Kirim data ke view edit
-        return view('transaksi.edit', compact('transaksi'));
-    }
-
-    // Memproses perubahan data ke database
-    public function update(Request $request, $id)
-    {
-        // 1. Validasi Input (Sama seperti store)
-        $validated = $request->validate([
-            'keterangan' => 'required|string|max:255',
-            'nominal'    => 'required|numeric|min:1000',
-            'jenis'      => 'required|in:pemasukan,pengeluaran',
-            'tanggal'    => 'required|date'
-        ]);
-
-        // 2. Cari data yang akan diupdate
-        $transaksi = Transaksi::findOrFail($id);
-
-        // 3. Update data di database
-        $transaksi->update($validated);
-
-        // 4. Redirect kembali ke dashboard dengan pesan sukses
-        return redirect()->route('dashboard')->with('success', 'Data transaksi berhasil diperbarui!');
-    }
-
-    public function destroy($id)
-    {
-        // 1. Cari data berdasarkan ID
-        $transaksi = Transaksi::findOrFail($id);
-
-        // 2. Hapus data tersebut
-        $transaksi->delete();
-
-        // 3. Redirect kembali ke dashboard
-        return redirect()->route('dashboard')->with('success', 'Transaksi berhasil dihapus!');
-    }
 }

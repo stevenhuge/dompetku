@@ -72,13 +72,13 @@
                     </td>
                     <td class="px-6 py-4 text-sm font-medium text-center">
                         <div class="flex justify-center gap-3">
-                            <a href="{{ route('transaksi.edit', $item->id) }}"
+                            <a href="{{ url('/transaksi/edit'.$item['id']) }}"
                                 class="text-indigo-600 hover:text-indigo-900 transition"
                                 title="Edit Transaksi">
                                 <i class="fas fa-edit"></i>
                             </a>
 
-                            <form action="{{ url('/transaksi/'.$item['id']) }}" method="POST" class="inline">
+                            <form action="" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
